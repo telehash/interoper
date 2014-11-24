@@ -2,6 +2,8 @@ package test
 
 import (
 	"fmt"
+	"path"
+	"strings"
 	"time"
 )
 
@@ -38,11 +40,19 @@ func (t *Description) Normalize() error {
 	}
 
 	if t.SystemUnderTest == nil {
-		return fmt.Errorf("%s: `sut` must be present.", t.Name)
+		t.SystemUnderTest = &Process{}
+	}
+
+	if t.SystemUnderTest.Command == "" {
+		t.SystemUnderTest.Command = fmt.Sprintf("th-test %s sut", strings.TrimSuffix(path.Base(t.Name), ".md"))
 	}
 
 	if t.TestDriver == nil {
-		return fmt.Errorf("%s: `driver` must be present.", t.Name)
+		t.TestDriver = &Process{}
+	}
+
+	if t.TestDriver.Command == "" {
+		t.TestDriver.Command = fmt.Sprintf("th-test %s driver", strings.TrimSuffix(path.Base(t.Name), ".md"))
 	}
 
 	return nil

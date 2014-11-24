@@ -30,7 +30,7 @@ func main() {
 		ctx      runner.Context
 	)
 
-	ctx.Drivers = []string{"c", "go"}
+	ctx.Drivers = []string{"go"}
 	ctx.SUTs = []string{"go"}
 	ctx.Execer = &runner.Docker{}
 

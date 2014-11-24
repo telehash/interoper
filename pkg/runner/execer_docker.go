@@ -21,9 +21,11 @@ type dockerProcess struct {
 	cmd    *exec.Cmd
 	mtx    sync.Mutex
 	output []*OutputLine
+	w      io.Writer
+	r      io.Reader
 }
 
-func (*Docker) Exec(name, impl, command string) (Process, error) {
+func (*Docker) Exec(wdir, name, impl, command string) (Process, error) {
 	proc := &dockerProcess{name: name}
 
 	cmdArgs, err := shellwords.Split(command)
@@ -35,6 +37,7 @@ func (*Docker) Exec(name, impl, command string) (Process, error) {
 		"run",
 		// --net container:th-c-test
 		"--name", "th-interop-" + name,
+		"--volume", wdir + ":/shared",
 		"--rm",
 		"-it",
 		"telehash/test-" + impl,
@@ -45,16 +48,18 @@ func (*Docker) Exec(name, impl, command string) (Process, error) {
 	cmd := exec.Command("docker", args...)
 	cmd.Dir = os.TempDir()
 
-	cmd.StdinPipe()
+	w, err := cmd.StdinPipe()
+	if err != nil {
+		return nil, err
+	}
 
-	if p, err := cmd.StdoutPipe(); err == nil {
-		go proc.readLines("stdout", p)
-	} else {
+	r, err := cmd.StdoutPipe()
+	if err != nil {
 		return nil, err
 	}
 
 	if p, err := cmd.StderrPipe(); err == nil {
-		go proc.readLines("stder", p)
+		go proc.readLines("stderr", p)
 	} else {
 		return nil, err
 	}
@@ -64,11 +69,17 @@ func (*Docker) Exec(name, impl, command string) (Process, error) {
 	}
 
 	proc.cmd = cmd
+	proc.w = w
+	proc.r = r
 	return proc, nil
 }
 
 func (p *dockerProcess) Output() []*OutputLine {
 	return p.output
+}
+
+func (p *dockerProcess) OutputReader() io.Reader {
+	return p.r
 }
 
 func (p *dockerProcess) Kill() error {

@@ -1,20 +1,25 @@
 package runner
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"path"
 	"time"
 
 	"github.com/telehash/interoper/pkg/test"
 )
 
 type Execer interface {
-	Exec(name, implementation, command string) (Process, error)
+	Exec(wdir, name, implementation, command string) (Process, error)
 }
 
 type Process interface {
 	Kill() error
 	Wait() error
 	Output() []*OutputLine
+	OutputReader() io.Reader
 }
 
 type OutputLine struct {
@@ -37,7 +42,11 @@ func Run(t *test.Description, ctx *Context) error {
 
 		var (
 			procs = make([]Process, 0, 2+len(t.Services))
+			wdir  = path.Join(os.TempDir(), fmt.Sprintf("interop-%d", time.Now().UnixNano()))
 		)
+
+		os.MkdirAll(wdir, 0755)
+		defer os.RemoveAll(wdir)
 
 		var kill = func() {
 			for _, proc := range procs {
@@ -58,28 +67,49 @@ func Run(t *test.Description, ctx *Context) error {
 		timeout := time.AfterFunc(t.Timeout(), kill)
 		defer timeout.Stop()
 
-		{ // start the SUT
-			proc, err := ctx.Execer.Exec("sut", sut, t.SystemUnderTest.Command)
+		for name, desc := range t.Services { // start the Services
+			proc, err := ctx.Execer.Exec(wdir, "srv-"+name, driver, desc.Command)
 			if err != nil {
 				// TODO report
+				fmt.Printf("error: %s\n", err)
+				return nil
+			}
+			err = awaitReady(proc.OutputReader())
+			if err != nil {
+				// TODO report
+				fmt.Printf("error: %s\n", err)
 				return nil
 			}
 			procs = append(procs, proc)
 		}
 
-		for name, desc := range t.Services { // start the SUT
-			proc, err := ctx.Execer.Exec("srv-"+name, driver, desc.Command)
+		{ // start the SUT
+			proc, err := ctx.Execer.Exec(wdir, "sut", sut, t.SystemUnderTest.Command)
 			if err != nil {
 				// TODO report
+				fmt.Printf("error: %s\n", err)
+				return nil
+			}
+			err = awaitReady(proc.OutputReader())
+			if err != nil {
+				// TODO report
+				fmt.Printf("error: %s\n", err)
 				return nil
 			}
 			procs = append(procs, proc)
 		}
 
 		{ // start the Driver
-			proc, err := ctx.Execer.Exec("driver", driver, t.TestDriver.Command)
+			proc, err := ctx.Execer.Exec(wdir, "driver", driver, t.TestDriver.Command)
 			if err != nil {
 				// TODO report
+				fmt.Printf("error: %s\n", err)
+				return nil
+			}
+			err = awaitReady(proc.OutputReader())
+			if err != nil {
+				// TODO report
+				fmt.Printf("error: %s\n", err)
 				return nil
 			}
 			procs = append(procs, proc)
@@ -89,6 +119,7 @@ func Run(t *test.Description, ctx *Context) error {
 			err := proc.Wait()
 			if err != nil {
 				// TODO report
+				fmt.Printf("error: %s\n", err)
 				return nil
 			}
 		}
@@ -109,6 +140,30 @@ func permute(suts, drivers []string, f func(sut, driver string) error) error {
 				return err
 			}
 		}
+	}
+	return nil
+}
+
+type Command struct {
+	Cmd string
+}
+
+func readCommand(r io.Reader) (*Command, error) {
+	var cmd *Command
+	err := json.NewDecoder(r).Decode(&cmd)
+	if err != nil {
+		return nil, err
+	}
+	return cmd, nil
+}
+
+func awaitReady(r io.Reader) error {
+	cmd, err := readCommand(r)
+	if err != nil {
+		return err
+	}
+	if cmd.Cmd != "ready" {
+		return fmt.Errorf("expected %q instead of %q", "ready", cmd.Cmd)
 	}
 	return nil
 }

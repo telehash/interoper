@@ -52,7 +52,7 @@ type process struct {
 	c <-chan time.Time
 }
 
-func (e *execer) Exec(name, impl, command string) (Process, error) {
+func (e *execer) Exec(wdir, name, impl, command string) (Process, error) {
 	fmt.Printf("run: name=%q impl=%q impl=%q\n", name, impl, command)
 	return &process{time.After(10 * time.Millisecond)}, nil
 }
