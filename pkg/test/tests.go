@@ -8,23 +8,31 @@ import (
 )
 
 type Description struct {
-	Name          string
-	TimeoutString string `json:"timeout"`
-
-	SystemUnderTest *Process            `json:"sut"`
-	TestDriver      *Process            `json:"driver"`
-	Services        map[string]*Process `json:"services"`
-
-	Description string
+	Name          string              `json:"name"`
+	TimeoutString string              `json:"timeout"`
+	Containers    map[string]*Process `json:"containers"`
+	Description   string              `json:"description"`
 
 	timeout time.Duration
 }
 
 type Process struct {
-	Command string
+	Image   string `json:"image"`
+	Command string `json:"command"`
+}
+
+func (p *Process) ForImplementation(impl string) *Process {
+	o := new(Process)
+	*o = *p
+	if o.Image == "" {
+		o.Image = "telehashinterop/" + impl
+	}
+	return o
 }
 
 func (t *Description) Normalize() error {
+	t.Name = strings.TrimSuffix(path.Base(t.Name), ".md")
+
 	if t.TimeoutString == "" {
 		t.TimeoutString = "0s"
 	}
@@ -39,20 +47,24 @@ func (t *Description) Normalize() error {
 		t.timeout = 10 * time.Minute
 	}
 
-	if t.SystemUnderTest == nil {
-		t.SystemUnderTest = &Process{}
+	if t.Containers == nil {
+		t.Containers = make(map[string]*Process)
 	}
 
-	if t.SystemUnderTest.Command == "" {
-		t.SystemUnderTest.Command = fmt.Sprintf("th-test %s sut", strings.TrimSuffix(path.Base(t.Name), ".md"))
+	if t.Containers["sut"] == nil {
+		t.Containers["sut"] = &Process{}
 	}
 
-	if t.TestDriver == nil {
-		t.TestDriver = &Process{}
+	if t.Containers["sut"].Command == "" {
+		t.Containers["sut"].Command = fmt.Sprintf("th-test %s sut", strings.TrimSuffix(path.Base(t.Name), ".md"))
 	}
 
-	if t.TestDriver.Command == "" {
-		t.TestDriver.Command = fmt.Sprintf("th-test %s driver", strings.TrimSuffix(path.Base(t.Name), ".md"))
+	if t.Containers["driver"] == nil {
+		t.Containers["driver"] = &Process{}
+	}
+
+	if t.Containers["driver"].Command == "" {
+		t.Containers["driver"].Command = fmt.Sprintf("th-test %s driver", strings.TrimSuffix(path.Base(t.Name), ".md"))
 	}
 
 	return nil

@@ -19,11 +19,11 @@ func TestParse(t *testing.T) {
 		t.Fatalf("expected test.Timeout() = %s but was %s", time.Minute, test.Timeout())
 	}
 
-	if test.SystemUnderTest == nil || test.SystemUnderTest.Command != "test-net-link await" {
-		t.Fatalf("expected test.SystemUnderTest = %v but was %s", &Process{Command: "test-net-link await"}, test.SystemUnderTest)
+	if test.Containers["sut"] == nil || test.Containers["sut"].Command != "th-test example sut" {
+		t.Fatalf("expected test.Containers[\"sut\"] = %v but was %s", &Process{Command: "th-test example sut"}, test.Containers["sut"])
 	}
 
-	if test.TestDriver == nil || test.TestDriver.Command != "test-net-link establish" {
-		t.Fatalf("expected test.TestDriver = %v but was %s", &Process{Command: "test-net-link await"}, test.TestDriver)
+	if test.Containers["driver"] == nil || test.Containers["driver"].Command != "th-test example driver" {
+		t.Fatalf("expected test.Containers[\"driver\"] = %v but was %s", &Process{Command: "th-test example driver"}, test.Containers["driver"])
 	}
 }

@@ -5,24 +5,25 @@
 
 ## Test file format
 
-Test files are Markdown files which start with an (indent formatted) code block of some JSON followed by a ddescription of the test.
+Test files are Markdown files which start with an (indent formatted) code block of some JSON followed by a description of the test.
 
-The JSON header must define a `"sut"` (System Under Test) entry and a `"driver"` entry. It may also have a `"timeout"` and/or a `"services"` entry .
+The JSON header can have the following entries:
+
+* `"timeout"` defines the maximum runtime for a test. (examples: `"3ms"`, `"3s"`, `"3m"`, `"3h"`)
+* `"containers"` defines container settings for the individual roles. It must be an object. Each entry can have the `"command"` entry.
 
 ```markdown
     {
-      "timeout": "3m",
-      "sut":    { "command": "test-net-link await" },
-      "driver": { "command": "test-net-link establish" }
+      "timeout": "3m"
     }
 
 # `net-link` Test basic link establishment.
 
 ## Scenario
 
-The SUT must start an endpoint and write its keys and paths to `/shared/sut.json`.
+The SUT must start an endpoint and write its keys and paths to `/shared/id_sut.json`.
 
-The Driver must start an endpoint, load the keys and paths from `/shared/sut.json` and establish a link with the SUT. The driver must close the link after 2.5 minutes.
+The Driver must start an endpoint, load the keys and paths from `/shared/id_sut.json` and establish a link with the SUT. The driver must close the link after 2.5 minutes.
 
 ## Failure conditions
 
@@ -32,5 +33,12 @@ The Driver must start an endpoint, load the keys and paths from `/shared/sut.jso
 ## Success conditions
 
 * The remains open for at least 2.5 minutes (It keeps the exchange open)
-* The link close cleanly
+* The link closes cleanly
 ```
+
+
+## Test Control Protocol.
+
+Test processes can use regular logging to save informational data. In addition to the regullar logging processes can also send (and receive) JSON formatted commands over STDIN/STDOUT/STDERR.
+
+All process types must send a `{"cmd":"ready"}` when they are ready with there setup and can start running the test. The Driver will then run its test and when it is done it send the `{"cmd":"done"}` command. The done command is forwarded to the SUT (so that it can shut itself down).

@@ -1,0 +1,23 @@
+<div class="log-entry-meta">
+  <div class="time" title="{{time}}">{{ delta | timeDelta }}</div>
+</div>
+<div class="log-entry-box" ng-transclude></div>
+
+<div class="log-entry-labels">
+
+  <log-label ng-if="entry.ro"
+    type="role" identifier="{{entry.ro}}"></log-label>
+
+  <log-label ng-if="entry.$$endpoint"
+    type="endpoint" identifier="{{entry.$$endpoint.hashname}}"></log-label>
+
+  <log-label ng-if="entry.$$exchange"
+    type="exchange" identifier="{{entry.$$exchange.peer}}"></log-label>
+
+  <log-label ng-if="entry.$$channel"
+    type="channel" identifier="{{entry.$$channel.id}}"></log-label>
+
+  <log-label ng-if="entry.$$packet"
+    type="packet" identifier="{{entry.$$packet.id}}"></log-label>
+
+</div>

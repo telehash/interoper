@@ -1,0 +1,23 @@
+<div class="fullbleed inspector">
+
+  <h2>Driver: {{ run.driver }}</h2>
+  <a ng-href="/tests/{{test.desc.name}}">close</a>
+
+  <div class="log">
+    <div
+      ng-repeat="entry in run.log">
+
+      <log-entry
+        entry="entry"
+        time="{{entry.ti}}"
+        since-time="{{sinceTime}}"
+        cmd="{{ entry.ty }}">
+
+        <div ng-include="templateForEntry(entry)"></div>
+
+      </log-entry>
+
+    </div>
+  </div>
+
+</div>

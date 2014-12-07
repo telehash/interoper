@@ -1,0 +1,182 @@
+.browsehappy {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
+}
+
+
+.fullbleed {
+  position: absolute;
+  width:  100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  overflow: auto;
+}
+
+.fit {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+.inspector {
+  background-color: #eee;
+}
+
+log-entry {
+  display: block;
+
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+
+  border-top: 1px solid #ccc;
+
+  .log-entry-meta {
+    width: 100px - 20px;
+
+    text-align: right;
+    padding: 10px;
+
+    .time {
+      font-size: 0.75em;
+      color: rgba(0, 0, 0, 0.5)
+    }
+  }
+
+  .log-entry-box {
+    -webkit-flex: 8 0 0;
+    flex: 8 0 0;
+
+    min-height: 16px;
+    padding: 5px;
+    background-color: #fff;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  .log-entry-labels {
+    -webkit-flex: 1 0 0;
+    flex: 1 0 0;
+
+    min-height: 16px;
+    padding: 5px;
+  }
+
+  &[cmd="log"] {
+    .log-entry-box {
+      background-color: #fdf6e3;
+      font-family: monospace;
+      .line {
+        line-height: 16px;
+        white-space: pre-wrap;
+      }
+    }
+  }
+
+  table th {
+    text-align: right;
+  }
+
+  pre {
+    margin: 0;
+  }
+
+  .log-entry-box log-label {
+    display: inline-block;
+    margin: 0;
+    margin-bottom: -4px;
+    border: 1px solid #ccc;
+  }
+}
+
+log-label {
+  border-radius: 3px;
+  // border: 1px solid #000;
+  overflow: hidden;
+  display: block;
+  position: relative;
+  background-color: #fff;
+  margin: 2px;
+
+  .type {
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 12px;
+    font-size: 12px;
+    line-height: 1em;
+    padding: 2px;
+
+    color: #fff;
+    background-color: #2980b9;
+
+    &.log-label--role     { background-color: #2c3e50; }
+    &.log-label--endpoint { background-color: #2980b9; }
+    &.log-label--exchange { background-color: #8e44ad; }
+    &.log-label--channel  { background-color: #27ae60; }
+    &.log-label--packet   { background-color: #d35400; }
+  }
+
+  .identifier {
+    font-family: monospace;
+    margin-left: 16px;
+    font-size: 10px;
+    vertical-align: center;
+    line-height: 1em;
+    padding: 2px;
+  }
+
+
+}
+
+.ansi-black-bg { color: #073642; }
+.ansi-black-fg { color: #073642; }
+.ansi-blue-bg { color: #268bd2; }
+.ansi-blue-fg { color: #268bd2; }
+.ansi-cyan-bg { color: #2aa198; }
+.ansi-cyan-fg { color: #2aa198; }
+.ansi-green-bg { color: #859900; }
+.ansi-green-fg { color: #859900; }
+.ansi-magenta-bg { color: #d33682; }
+.ansi-magenta-fg { color: #d33682; }
+.ansi-red-bg { color: #d30102; }
+.ansi-red-fg { color: #d30102; }
+.ansi-white-bg { color: #eee8d5; }
+.ansi-white-fg { color: #eee8d5; }
+.ansi-yellow-bg { color: #b58900; }
+.ansi-yellow-fg { color: #b58900; }
+
+.ansi-bright-black-bg { color: #002b36; }
+.ansi-bright-black-fg { color: #002b36; }
+.ansi-bright-blue-bg { color: #839496; }
+.ansi-bright-blue-fg { color: #839496; }
+.ansi-bright-cyan-bg { color: #93a1a1; }
+.ansi-bright-cyan-fg { color: #93a1a1; }
+.ansi-bright-green-bg { color: #586e75; }
+.ansi-bright-green-fg { color: #586e75; }
+.ansi-bright-magenta-bg { color: #6c71c4; }
+.ansi-bright-magenta-fg { color: #6c71c4; }
+.ansi-bright-red-bg { color: #cb4b16; }
+.ansi-bright-red-fg { color: #cb4b16; }
+.ansi-bright-white-bg { color: #fdf6e3; }
+.ansi-bright-white-fg { color: #fdf6e3; }
+.ansi-bright-yellow-bg { color: #657b83; }
+.ansi-bright-yellow-fg { color: #657b83; }
+
+hr {
+  border: 0;
+  border-top: 1px solid #ccc;
+}

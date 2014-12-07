@@ -4,31 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strings"
 )
 
-func Load(file string) (*Description, error) {
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return Parse(file, data)
-}
-
-func MustLoad(file string) *Description {
-	t, err := Load(file)
-	if err != nil {
-		panic(err)
-	}
-	return t
-}
-
 func Parse(name string, data []byte) (*Description, error) {
 	var (
 		t   *Description
-		dec = json.NewDecoder(bytes.NewReader(data))
+		r   = bytes.NewReader(data)
+		dec = json.NewDecoder(r)
 		err = dec.Decode(&t)
 	)
 
@@ -36,7 +21,7 @@ func Parse(name string, data []byte) (*Description, error) {
 		return nil, fmt.Errorf("%s: failed to parse: %s", name, err)
 	}
 
-	data, err = ioutil.ReadAll(dec.Buffered())
+	data, err = ioutil.ReadAll(io.MultiReader(dec.Buffered(), r))
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to parse: %s", name, err)
 	}

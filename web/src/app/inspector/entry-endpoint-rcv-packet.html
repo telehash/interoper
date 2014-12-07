@@ -1,0 +1,8 @@
+endpoint received packet from
+
+  <log-label ng-if="entry.$$packet.exchange.peer"
+    type="endpoint" identifier="{{entry.$$packet.exchange.peer}}"></log-label>
+  <code ng-if="!entry.$$packet.exchange.peer"
+    >{{ entry.$$packet.outer.src }}</code>
+
+<div ng-include="'app/inspector/entry-partial-packet.html'"></div>

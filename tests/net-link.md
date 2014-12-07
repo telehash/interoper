@@ -6,9 +6,9 @@
 
 ## Scenario
 
-The SUT must start an endpoint and write its keys and paths to `/shared/sut.json`.
+The SUT must start an endpoint and write its keys and paths to `/shared/id_sut.json`.
 
-The Driver must start an endpoint, load the keys and paths from `/shared/sut.json` and establish a link with the SUT. The driver must close the link after 2.5 minutes.
+The Driver must start an endpoint, load the keys and paths from `/shared/id_sut.json` and establish a link with the SUT. The driver must close the link after 2.5 minutes.
 
 ## Failure conditions
 
@@ -18,4 +18,4 @@ The Driver must start an endpoint, load the keys and paths from `/shared/sut.jso
 ## Success conditions
 
 * The remains open for at least 2.5 minutes (It keeps the exchange open)
-* The link close cleanly
+* The link closes cleanly

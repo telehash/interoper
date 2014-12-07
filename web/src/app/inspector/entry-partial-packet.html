@@ -1,0 +1,47 @@
+
+
+<div ng-if="entry.$$packet.outer">
+  <hr>
+  <table>
+    <tr>
+      <th>from</th>
+      <td><code>{{ entry.$$packet.outer.src }}</code></td>
+    </tr>
+    <tr>
+      <th>body</th>
+      <td><pre>{{ entry.$$packet.outer.msg | linesplit }}</pre></td>
+    </tr>
+  </table>
+</div>
+
+<div ng-if="entry.$$packet.inner">
+  <hr>
+  <table >
+    <tr ng-repeat="(key, value) in entry.$$packet.inner.header">
+      <th><code>{{ key }}</code></th>
+      <td><code>{{ value | json }}</code></td>
+    </tr>
+    <tr ng-if="entry.$$packet.inner.body">
+      <th>Body</th>
+      <td><pre>{{ entry.$$packet.inner.body }}</pre></td>
+    </tr>
+  </table>
+</div>
+
+<div ng-if="entry.$$packet.handshake">
+  <hr>
+  <table>
+    <tr>
+      <th>At:</th>
+      <td><code>{{ entry.$$packet.handshake.at }}</code></td>
+    </tr>
+    <tr>
+      <th>key: <code>{{ entry.$$packet.handshake.csid }}</code></th>
+      <td><code>{{ entry.$$packet.handshake.public_key }}</code></td>
+    </tr>
+    <tr ng-repeat="(csid, part) in entry.$$packet.handshake.parts">
+      <th>part: <code>{{ csid }}</code></th>
+      <td><code>{{ part }}</code></td>
+    </tr>
+  </table>
+</div>
