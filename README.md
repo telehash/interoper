@@ -39,6 +39,251 @@ The Driver must start an endpoint, load the keys and paths from `/shared/id_sut.
 
 ## Test Control Protocol.
 
-Test processes can use regular logging to save informational data. In addition to the regullar logging processes can also send (and receive) JSON formatted commands over STDIN/STDOUT/STDERR.
+Test processes can use regular logging to save informational data. In addition to the regular logging processes can also send (and receive) JSON formatted events over STDOUT.
 
-All process types must send a `{"cmd":"ready"}` when they are ready with there setup and can start running the test. The Driver will then run its test and when it is done it send the `{"cmd":"done"}` command. The done command is forwarded to the SUT (so that it can shut itself down).
+All process types must send a `{"ty":"ready"}` when they are ready with there setup and can start running the test. The Driver will then run its test and when it is done it sends the `{"ty":"done"}` command. When The Driver is done running the tests it must exit. When the driver exits all other processes will be killed.
+
+### Event JSON structure
+
+All events must have the following format.
+```json
+{
+  "id": 0,
+  // integer; unique event id. (must be unique withing the process)
+
+  "ty": "endpoint.new",
+  // string;  type of the event.
+
+  "in": {}
+  // object;  info object. contains additional information on the event.
+}
+```
+
+### Event Types
+
+#### `"ready"`
+
+Signals that the sending process is ready to start the test. No extra information must be send with this event.
+
+#### `"done"`
+
+Signals that the sending process is done running the test. No extra information must be send with this event.
+
+#### `"exited"`
+
+Signals that the sending process has exited. This event is emitted by interoper and should not be emitted by the processes.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exit_code"` | integer | The exit code of the process |
+
+#### `"log"`
+
+All lines printed by the process will be transformed into `"log"` events. This event is emitted by interoper and should not be emitted by the processes.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"line"` | string | The logged line |
+
+#### `"exec"`
+
+Emitted by interoper at the start of each test.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"sut"` | string | The name of the tested implementation |
+| `"driver"` | string | The name of the driver implementation  |
+
+#### `"status"`
+
+Emitted by interoper at the end of each test.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"success"` | bool | `true` when the test was run successfully |
+
+#### `"endpoint.new"`
+
+Should be emitted every time a new endpoint is created.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"endpoint_id"` | integer | unique id assigned to this endpoint |
+| `"hashname"` | string | the hashname associated with this endpoint |
+
+#### `"endpoint.started"`
+
+Should be emitted every time an endpoint is started.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"endpoint_id"` | integer | id of the endpoint |
+
+#### `"endpoint.error"`
+
+Should be emitted every time an endpoint encounters an error.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"endpoint_id"` | integer | id of the endpoint |
+| `"error"` | string | description of the error |
+
+#### `"endpoint.rcv.packet"`
+
+Should be emitted every time an endpoint received a packet.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"endpoint_id"` | integer | id of the endpoint |
+| `"packet_id"` | integer | unique id for this packet |
+| `"packet"."src"` | string | the source address the packet was received from |
+| `"packet"."msg"` | string | the content of the packet |
+
+#### `"endpoint.drop.packet"`
+
+Should be emitted every time an endpoint dropped a packet.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"endpoint_id"` | integer | id of the endpoint |
+| `"packet_id"` | integer | unique id for this packet |
+| `"reason"` | string | the reason for dropping the packet |
+| `"packet"."src"` | string | the source address the packet was received from |
+| `"packet"."msg"` | string | the content of the packet |
+
+#### `"exchange.new"`
+
+Should be emitted every time a new exchange is created.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"endpoint_id"` | integer | id of the endpoint |
+| `"exchange_id"` | integer | unique id for this exchange |
+
+#### `"exchange.started"`
+
+Should be emitted every time an exchange is opened.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exchange_id"` | integer | id of the exchange |
+| `"peer"` | string | hashname of the remote endpoint |
+
+#### `"exchange.stopped"`
+
+Should be emitted every time an exchange is closed.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exchange_id"` | integer | id of the exchange |
+
+#### `"exchange.rcv.handshake"`
+
+Should be emitted every time an exchange received a handshake.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exchange_id"` | integer | id of the endpoint |
+| `"packet_id"` | integer | id of the packet |
+| `"handshake"."csid"` | integer | the CSID of the key in the body of the handshake |
+| `"handshake"."public_key"` | string | the key in the body |
+| `"handshake"."at"` | integer | the `"at"` header of the handshake |
+| `"handshake"."parts"` | object | the parts in the handshake header |
+
+#### `"exchange.drop.handshake"`
+
+Should be emitted every time an exchange dropped a handshake.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exchange_id"` | integer | id of the endpoint |
+| `"packet_id"` | integer | id of the packet |
+| `"reason"` | string | the reason for dropping the handshake |
+| `"handshake"."csid"` | integer | the CSID of the key in the body of the handshake |
+| `"handshake"."public_key"` | string | the key in the body |
+| `"handshake"."at"` | integer | the `"at"` header of the handshake |
+| `"handshake"."parts"` | object | the parts in the handshake header |
+
+#### `"exchange.rcv.packet"`
+
+Should be emitted every time an exchange received a packet.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exchange_id"` | integer | id of the exchange |
+| `"packet_id"` | integer | unique id for this packet |
+| `"packet"."header"` | object | the header of the packet |
+| `"packet"."body"` | string | the body of the packet |
+
+#### `"exchange.drop.packet"`
+
+Should be emitted every time an exchange dropped a packet.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exchange_id"` | integer | id of the exchange |
+| `"packet_id"` | integer | unique id for this packet |
+| `"reason"` | string | the reason for dropping the packet |
+| `"packet"."header"` | object | the header of the packet |
+| `"packet"."body"` | string | the body of the packet |
+
+#### `"channel.new"`
+
+Should be emitted every time a new channel is created.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"exchange_id"` | integer | id of the exchange |
+| `"channel_id"` | integer | unique id for this channel (not the `"c"` header) |
+| `"channel"."type"` | string | the type of the channel |
+| `"channel"."reliable"` | bool | `true` when this is a reliable channel |
+| `"channel"."cid"` | integer | the channel id as defined by telehash (the `"c"` header) |
+
+#### `"channel.write"`
+
+Should be emitted every time a channel writes packet.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"channel_id"` | integer | id of the channel |
+| `"packet_id"` | integer | unique id for this packet |
+| `"path"` | string | the target path (if specified) |
+| `"packet"."header"` | object | the header of the packet |
+| `"packet"."body"` | string | the body of the packet |
+
+#### `"channel.write.error"`
+
+Should be emitted every time a channel write failed.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"channel_id"` | integer | id of the channel |
+| `"packet_id"` | integer | unique id for this packet |
+| `"reason"` | string | the reason the write failed |
+| `"path"` | string | the target path (if specified) |
+| `"packet"."header"` | object | the header of the packet |
+| `"packet"."body"` | string | the body of the packet |
+
+
+#### `"channel.rcv.packet"`
+
+Should be emitted every time a channel received a packet.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"channel_id"` | integer | id of the channel |
+| `"packet_id"` | integer | unique id for this packet |
+| `"packet"."header"` | object | the header of the packet |
+| `"packet"."body"` | string | the body of the packet |
+
+#### `"channel.drop.packet"`
+
+Should be emitted every time a channel dropped a packet.
+
+| param | type | description |
+| ----- | ---- | ----------- |
+| `"channel_id"` | integer | id of the channel |
+| `"packet_id"` | integer | unique id for this packet |
+| `"reason"` | string | the reason for dropping the packet |
+| `"packet"."header"` | object | the header of the packet |
+| `"packet"."body"` | string | the body of the packet |
