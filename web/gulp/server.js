@@ -40,11 +40,11 @@ gulp.task('serve', ['watch'], function () {
     'src',
     '.tmp'
   ], [
-    '.tmp/{app,components,directives}/**/*.css',
+    '.tmp/{app,components}/**/*.css',
     'src/assets/images/**/*',
     'src/*.html',
-    'src/{app,components,directives}/**/*.html',
-    'src/{app,components,directives}/**/*.js'
+    'src/{app,components}/**/*.html',
+    'src/{app,components}/**/*.js'
   ]);
 });
 

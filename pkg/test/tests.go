@@ -51,12 +51,12 @@ func (t *Description) Normalize() error {
 		t.Containers = make(map[string]*Process)
 	}
 
-	if t.Containers["sut"] == nil {
-		t.Containers["sut"] = &Process{}
+	if t.Containers["worker"] == nil {
+		t.Containers["worker"] = &Process{}
 	}
 
-	if t.Containers["sut"].Command == "" {
-		t.Containers["sut"].Command = fmt.Sprintf("th-test %s sut", strings.TrimSuffix(path.Base(t.Name), ".md"))
+	if t.Containers["worker"].Command == "" {
+		t.Containers["worker"].Command = fmt.Sprintf("th-test %s worker", strings.TrimSuffix(path.Base(t.Name), ".md"))
 	}
 
 	if t.Containers["driver"] == nil {

@@ -7,12 +7,12 @@ angular.module('web')
       scope: {
         text: '='
       },
-      link: function($scope, $elem, $attr) {
+      link: function($scope, $elem) {
         $elem.html(marked($scope.text));
 
         $scope.$watch('text', function(v){
           $elem.html(marked(v));
         });
       }
-    }
+    };
   });

@@ -30,9 +30,9 @@ The JSON header can have the following entries:
 
 ## Scenario
 
-The SUT must start an endpoint and write its keys and paths to `/shared/id_sut.json`.
+The Worker must start an endpoint and write its keys and paths to `/shared/id_worker.json`.
 
-The Driver must start an endpoint, load the keys and paths from `/shared/id_sut.json` and establish a link with the SUT. The driver must close the link after 2.5 minutes.
+The Driver must start an endpoint, load the keys and paths from `/shared/id_worker.json` and establish a link with the Worker. The driver must close the link after 2.5 minutes.
 
 ## Failure conditions
 
@@ -112,7 +112,7 @@ Emitted by interoper at the start of each test.
 
 | param | type | description |
 | ----- | ---- | ----------- |
-| `"sut"` | string | The name of the tested implementation |
+| `"worker"` | string | The name of the tested implementation |
 | `"driver"` | string | The name of the driver implementation  |
 
 #### `"status"`
