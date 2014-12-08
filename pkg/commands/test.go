@@ -65,7 +65,7 @@ func (cmd *Test) buildImage() error {
 }
 
 func (cmd *Test) runTests() error {
-	cmd.ctx.SUT = "local"
+	cmd.ctx.Worker = "local"
 	cmd.ctx.Execer = &runner.Docker{}
 
 	cmd.ctx.Drivers = append(cmd.ctx.Drivers, "local")

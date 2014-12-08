@@ -16,5 +16,5 @@ func (report *Report) Dump() error {
 		return err
 	}
 
-	return ioutil.WriteFile(path.Join("interop/reports", report.SUT+"-"+time.Now().Format("20060102-1504")+".dump"), data, 0644)
+	return ioutil.WriteFile(path.Join("interop/reports", report.Worker+"-"+time.Now().Format("20060102-1504")+".dump"), data, 0644)
 }

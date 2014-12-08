@@ -85,15 +85,15 @@ func (e *Event) Success() bool {
 }
 
 type Context struct {
-	SUT     string
+	Worker  string
 	Drivers []string
 	Execer  Execer
 	Report  *Report
 }
 
 type Report struct {
-	SUT   string                 `json:"sut"`
-	Tests map[string]*TestReport `json:"tests"`
+	Worker string                 `json:"worker"`
+	Tests  map[string]*TestReport `json:"tests"`
 }
 
 type TestReport struct {
@@ -110,7 +110,7 @@ func Run(t *test.Description, ctx *Context) {
 	fmt.Printf("--> %s\n", t.Name)
 
 	if ctx.Report == nil {
-		ctx.Report = &Report{SUT: ctx.SUT, Tests: make(map[string]*TestReport)}
+		ctx.Report = &Report{Worker: ctx.Worker, Tests: make(map[string]*TestReport)}
 	}
 
 	testReport := ctx.Report.Tests[t.Name]
@@ -127,7 +127,7 @@ func Run(t *test.Description, ctx *Context) {
 
 		fmt.Printf("    %s%s", driver, strings.Repeat(" ", 10-len(driver)))
 
-		r := newRunner(t, ctx, ctx.SUT, driver)
+		r := newRunner(t, ctx, ctx.Worker, driver)
 		for event := range r.run() {
 			if event.Type == "status" {
 				success = event.Success()
@@ -148,19 +148,19 @@ type runner struct {
 	timeout time.Duration
 	execer  Execer
 	wdir    string
-	sut     string
+	worker  string
 	driver  string
 	procs   map[string]*test.Process
 	kills   map[string]chan struct{}
 	stopped map[string]<-chan struct{}
 }
 
-func newRunner(t *test.Description, ctx *Context, sut, driver string) *runner {
+func newRunner(t *test.Description, ctx *Context, worker, driver string) *runner {
 	r := &runner{
 		timeout: t.Timeout(),
 		execer:  ctx.Execer,
 		wdir:    path.Join(os.TempDir(), fmt.Sprintf("interop-%d", time.Now().UnixNano())),
-		sut:     sut,
+		worker:  worker,
 		driver:  driver,
 		procs:   make(map[string]*test.Process),
 		kills:   make(map[string]chan struct{}),
@@ -168,8 +168,8 @@ func newRunner(t *test.Description, ctx *Context, sut, driver string) *runner {
 	}
 
 	for name, proc := range t.Containers {
-		if name == "sut" {
-			r.procs[name] = proc.ForImplementation(sut)
+		if name == "worker" {
+			r.procs[name] = proc.ForImplementation(worker)
 		} else {
 			r.procs[name] = proc.ForImplementation(driver)
 		}
@@ -295,7 +295,7 @@ func (r *runner) run() <-chan Event {
 		defer r.stop()
 
 		for role := range r.procs {
-			if role == "sut" || role == "driver" {
+			if role == "worker" || role == "driver" {
 				continue
 			}
 
@@ -304,7 +304,7 @@ func (r *runner) run() <-chan Event {
 			}
 		}
 
-		if ready := r.runRole("sut", out); !<-ready {
+		if ready := r.runRole("worker", out); !<-ready {
 			return
 		}
 
@@ -388,7 +388,7 @@ func (r *runner) traceStatus(success bool) Event {
 }
 
 func (r *runner) traceExec() Event {
-	e := Event{Type: "exec", Info: Info{"sut": r.sut, "driver": r.driver}}
+	e := Event{Type: "exec", Info: Info{"worker": r.worker, "driver": r.driver}}
 	e.RecordTime()
 	return e
 }
