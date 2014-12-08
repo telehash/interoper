@@ -6,87 +6,69 @@ import (
 
 	"github.com/docopt/docopt-go"
 
-	"github.com/telehash/interoper/pkg/runner"
-	"github.com/telehash/interoper/pkg/suite"
-	"github.com/telehash/interoper/pkg/test"
+	"github.com/telehash/interoper/pkg/commands"
 )
 
-var usage = `interoper -- Interoperation testing for telehash
+var usage = `interoper -- Inter-operation testing for telehash
 
 Usage:
   interoper test
-  interoper suite pull
-  interoper suite push [--suite=<dir>]
+  interoper tournament
+  interoper tests update
+  interoper tests build [IMPLEMENTATION]
   interoper -h | --help
   interoper --version
 
 Options:
-  --suite=<dir>  Path to the test suite. [default: tests]
   -h --help      Show this screen.
   --version      Show version.
 
-Pushing The Test Suite:
-  Run interoper suite push from the root of the interoper directory.
-  Make sure you have the INTEROPER_AWS_BUCKET, INTEROPER_AWS_ACCOUNT and
-  INTEROPER_AWS_SECRET environment variables set.
+Commands:
+
+  $ interoper tournament
+  Runs all implementations against each other.
+
+  $ interoper test
+  Builds a test image from the Dockerfile in the current directory.
+  Then runs this image against all implementations.
+
+  $ interoper tests update
+  This command will download the latests test descriptions from github.com.
+
+  $ interoper tests build
+  This command builds all the test docker images defined by the repositories
+  in the "interop/tests/_implementations.json" file.
+
+  $ interoper tests build IMPLEMENTATION
+  This command builds just the specified docker image.
 `
 
 func main() {
 	args, _ := docopt.Parse(usage, nil, true, "0.1", false)
 
 	var (
-		isTest, _  = args["test"].(bool)
-		isSuite, _ = args["suite"].(bool)
-		isPull, _  = args["pull"].(bool)
-		isPush, _  = args["push"].(bool)
+		cmd               commands.Command
+		isTest, _         = args["test"].(bool)
+		isTests, _        = args["tests"].(bool)
+		isUpdate, _       = args["update"].(bool)
+		isBuild, _        = args["build"].(bool)
+		implementation, _ = args["IMPLEMENTATION"].(string)
 	)
 
 	switch {
 
 	case isTest:
-		mainTest(args)
+		cmd = &commands.Test{}
 
-	case isSuite && isPull:
+	case isTests && isUpdate:
+		cmd = &commands.Update{}
 
-	case isSuite && isPush:
-		mainSuitePush(args)
+	case isTests && isBuild:
+		cmd = &commands.BuildImages{Which: implementation}
 
-	}
-}
+	default:
+		assert(fmt.Errorf("unsupported command"))
 
-func mainTest(args map[string]interface{}) {
-	var (
-		ctx runner.Context
-	)
-
-	ctx.Drivers = []string{"go", "c"}
-	ctx.SUT = "go"
-	ctx.Execer = &runner.Docker{}
-
-	t, err := test.LoadAll("tests")
-	assert(err)
-
-	for _, t := range t {
-		runner.Run(t, &ctx)
-	}
-
-	err = ctx.Dump()
-	assert(err)
-}
-
-func mainSuitePush(args map[string]interface{}) {
-	var (
-		INTEROPER_AWS_BUCKET  = os.Getenv("INTEROPER_AWS_BUCKET")
-		INTEROPER_AWS_ACCOUNT = os.Getenv("INTEROPER_AWS_ACCOUNT")
-		INTEROPER_AWS_SECRET  = os.Getenv("INTEROPER_AWS_SECRET")
-		dir, _                = args["--suite"].(string)
-	)
-
-	cmd := suite.Push{
-		Root:       dir,
-		AwsBucket:  INTEROPER_AWS_BUCKET,
-		AwsAccount: INTEROPER_AWS_ACCOUNT,
-		AwsSecret:  INTEROPER_AWS_SECRET,
 	}
 
 	assert(cmd.Do())

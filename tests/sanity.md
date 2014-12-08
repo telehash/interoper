@@ -6,9 +6,9 @@
 
 ## Scenario
 
-The SUT must signal that it is ready by writing `{"cmd":"ready"}` to STDOUT. Then it must read the `{"cmd":"done"}` command from STDIN.
+The SUT must signal that it is ready by writing `{"ty":"ready"}` to STDOUT.
 
-The Driver must also signal that it is ready by writing `{"cmd":"ready"}` to STDOUT. Then it is expected to sleep 5 seconds after which it must signal that it is done by writing the `{"cmd":"done"}` command to STDOUT.
+The Driver must also signal that it is ready by writing `{"ty":"ready"}` to STDOUT. Then it is expected to sleep 5 seconds after which it must signal that it is done by writing the `{"ty":"done"}` command to STDOUT.
 
 ## Failure conditions
 

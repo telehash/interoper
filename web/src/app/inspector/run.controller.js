@@ -40,7 +40,6 @@ angular.module('web')
       case 'exchange.rcv.packet':
         return 'app/inspector/entry-exchange-rcv-packet.html';
 
-
       case 'channel.new':
         return 'app/inspector/entry-channel-new.html';
       case 'channel.write':

@@ -36,6 +36,13 @@ The Driver must start an endpoint, load the keys and paths from `/shared/id_sut.
 * The link closes cleanly
 ```
 
+## Creating docker images
+
+Interoper can work with any docker image as long as it has a `th-test` executable in its `PATH`.
+
+The `th-test` executable should accept two arguments. The first is the name of the test that should be run and the second argument is the role the process should assume (ex. `th-test net-link driver` asks the `th-test` executable to run the `net-link` test as the `driver`).
+
+`interoper test` will build the `Dockerfile` in the current directory and run all implementations against this image.
 
 ## Test Control Protocol.
 
@@ -46,7 +53,7 @@ All process types must send a `{"ty":"ready"}` when they are ready with there se
 ### Event JSON structure
 
 All events must have the following format.
-```json
+```json5
 {
   "id": 0,
   // integer; unique event id. (must be unique withing the process)
