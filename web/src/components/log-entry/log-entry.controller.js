@@ -5,9 +5,9 @@ angular.module('web')
     return {
       restrict: 'E',
       scope: {
-        entry: "=",
-        time: "@",
-        sinceTime: "@"
+        entry: '=',
+        time: '@',
+        sinceTime: '@'
       },
       transclude: true,
       templateUrl: 'components/log-entry/log-entry.html',
@@ -19,10 +19,10 @@ angular.module('web')
   .filter('timeDelta', function(){
     return function(input){
       var d = input / 1000;
-      if (d < 60) return d.toFixed(3) + "s";
+      if (d < 60) {return d.toFixed(3) + 's';}
       d = d / 60;
-      if (d < 60) return d.toFixed(2) + "m";
+      if (d < 60) {return d.toFixed(2) + 'm';}
       d = d / 60;
-      return d.toFixed(2) + "h";
+      return d.toFixed(2) + 'h';
     };
   });
