@@ -2,6 +2,13 @@
 
 **Interoper** is a simple interop testing tool for Telehash. It uses docker under the hood and makes json reports.
 
+## Getting started
+
+1. Make sure you have docker installed. (use boot2docker on OSX).
+2. Download and install interoper.
+3. Create a Dockerfile in your projects root. (See [Creating docker images](#creating-docker-images) and [Test Control Protocol](#test-control-protocol))
+4. Run `interoper test`
+5. Run `interoper help` to learn about the other commands.
 
 ## Test file format
 
@@ -36,6 +43,8 @@ The Driver must start an endpoint, load the keys and paths from `/shared/id_sut.
 * The link closes cleanly
 ```
 
+
+<a name="creating-docker-images"></a>
 ## Creating docker images
 
 Interoper can work with any docker image as long as it has a `th-test` executable in its `PATH`.
@@ -44,7 +53,9 @@ The `th-test` executable should accept two arguments. The first is the name of t
 
 `interoper test` will build the `Dockerfile` in the current directory and run all implementations against this image.
 
-## Test Control Protocol.
+
+<a name="test-control-protocol"></a>
+## Test Control Protocol
 
 Test processes can use regular logging to save informational data. In addition to the regular logging processes can also send (and receive) JSON formatted events over STDOUT.
 
