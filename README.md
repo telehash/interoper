@@ -7,7 +7,9 @@
 1. Make sure you have docker installed. (use boot2docker on OSX).
 2. Download and install interoper.
 3. Create a Dockerfile in your projects root. (See [Creating docker images](#creating-docker-images) and [Test Control Protocol](#test-control-protocol))
-4. Run `interoper test`
+4. Run `interoper tests update` to download the latest test descriptions.
+4. Run `interoper tests build` to build the drivers.
+4. Run `interoper test` to test your code.
 5. Run `interoper help` to learn about the other commands.
 
 ## Test file format
