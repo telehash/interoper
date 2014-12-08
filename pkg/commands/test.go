@@ -55,7 +55,7 @@ func (cmd *Test) buildImage() error {
 		".",
 	}
 
-	fmt.Printf("$ %s", strings.Join(args, " "))
+	fmt.Printf("$ %s\n", strings.Join(args, " "))
 
 	c := exec.Command(args[0], args[1:]...)
 	c.Stdin = os.Stdin

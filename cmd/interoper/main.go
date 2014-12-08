@@ -14,7 +14,7 @@ var usage = `interoper -- Inter-operation testing for telehash
 Usage:
   interoper test
   interoper tournament
-  interoper inspect REPORT
+  interoper inspect (latest | REPORT)
   interoper tests update
   interoper tests build [IMPLEMENTATION]
   interoper -h | --help
@@ -51,6 +51,7 @@ func main() {
 		cmd               commands.Command
 		isTest, _         = args["test"].(bool)
 		isInspect, _      = args["inspect"].(bool)
+		isLatest, _       = args["latest"].(bool)
 		isTests, _        = args["tests"].(bool)
 		isUpdate, _       = args["update"].(bool)
 		isBuild, _        = args["build"].(bool)
@@ -62,6 +63,9 @@ func main() {
 
 	case isTest:
 		cmd = &commands.Test{}
+
+	case isInspect && isLatest:
+		cmd = &commands.Inspect{Report: "latest"}
 
 	case isInspect:
 		cmd = &commands.Inspect{Report: report}
