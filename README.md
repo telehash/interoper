@@ -53,6 +53,7 @@ The `th-test` executable should accept two arguments. The first is the name of t
 
 `interoper test` will build the `Dockerfile` in the current directory and run all implementations against this image.
 
+* [Dockerfile](https://github.com/telehash/gogotelehash/blob/master/Dockerfile) used by the gogotelehash project.
 
 <a name="test-control-protocol"></a>
 ## Test Control Protocol
